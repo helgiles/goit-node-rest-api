@@ -40,7 +40,7 @@ export const updateContactSchema = Joi.object({
 		.required()
 		.pattern(/^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,14}(\s*)?$/)
 		.messages({
-			'string.pattern.base': `phone must be a valid phone number in the format (999) 914-3792`,
+			'string.pattern.base': `phone must be a valid phone number in the format (999) 999-9999`,
 			'any.required': `phone is required`,
 			'string.empty': `phone cannot be an empty field`,
 		}),
