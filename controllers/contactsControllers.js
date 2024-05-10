@@ -49,14 +49,23 @@ export const createContact = async (req, res, next) => {
 export const updateContact = async (req, res, next) => {
 	try {
 		const { id } = req.params;
-		const contact = req.body;
+		const contactUpdates = req.body;
 
-		const result = await contactsService.updateContact(id, contact);
+		if (Object.keys(contactUpdates).length === 0) {
+			throw HttpError(400, 'At least one field must be provided for update');
+		}
 
-		if (!result) {
+		const existingContact = await contactsService.getContactById(id);
+
+		if (!existingContact) {
 			throw HttpError(404);
 		}
-		res.status(201).json(result);
+
+		const updatedContact = Object.assign({}, existingContact, contactUpdates);
+
+		const result = await contactsService.updateContact(id, updatedContact);
+
+		res.status(200).json(result);
 	} catch (error) {
 		next(error);
 	}

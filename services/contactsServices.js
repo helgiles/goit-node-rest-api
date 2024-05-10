@@ -43,7 +43,7 @@ async function updateContact(id, contact) {
 		return null;
 	}
 
-	const updatedContact = { ...contact, id };
+	const updatedContact = { id, ...contact };
 
 	contacts[index] = updatedContact;
 
