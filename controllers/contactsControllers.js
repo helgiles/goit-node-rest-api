@@ -38,8 +38,8 @@ export const deleteContact = async (req, res, next) => {
 export const createContact = async (req, res, next) => {
 	try {
 		const contact = req.body;
-
 		const result = await contactsService.addContact(contact);
+
 		res.status(201).json(result);
 	} catch (error) {
 		next(error);
