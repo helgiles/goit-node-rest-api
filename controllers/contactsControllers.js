@@ -50,6 +50,10 @@ export const updateContact = async (req, res, next) => {
 			new: true,
 		});
 
+		if (!result) {
+			throw HttpError(404);
+		}
+
 		res.status(200).json(result);
 	} catch (error) {
 		next(error);
@@ -64,6 +68,10 @@ export const updateFavoriteContact = async (req, res, next) => {
 		const result = await Contact.findByIdAndUpdate(id, contactUpdates, {
 			new: true,
 		});
+
+		if (!result) {
+			throw HttpError(404);
+		}
 
 		res.status(200).json(result);
 	} catch (error) {
