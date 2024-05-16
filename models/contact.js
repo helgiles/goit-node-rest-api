@@ -17,6 +17,7 @@ const contactSchema = new Schema(
 		},
 		favorite: {
 			type: Boolean,
+			required: false,
 			default: false,
 		},
 	},
