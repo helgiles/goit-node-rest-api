@@ -8,9 +8,7 @@ export const registerUser = async (req, res, next) => {
 		const user = await User.findOne({ email });
 
 		if (user !== null) {
-			return res
-				.status(409)
-				.send({ message: `User with email ${email} is already registered` });
+			throw HttpError(409, `User with email ${email} is already registered`);
 		}
 
 		const passwordHash = await bcrypt.hash(password, 10);
@@ -27,25 +25,21 @@ export const registerUser = async (req, res, next) => {
 	}
 };
 
-export const loginUser = async (req, res) => {
+export const loginUser = async (req, res, next) => {
 	const { email, password } = req.body;
 	try {
 		const user = await User.findOne({ email });
 
 		if (user === null) {
 			console.log('Email');
-			return res
-				.status(401)
-				.send({ message: 'Email or password is incorrect' });
+			throw HttpError(401, `Email or password is incorrect`);
 		}
 
 		const isMatch = await bcrypt.compare(password, user.password);
 
 		if (isMatch === false) {
 			console.log('Password');
-			return res
-				.status(401)
-				.send({ message: 'Email or password is incorrect' });
+			throw HttpError(401, `Email or password is incorrect`);
 		}
 
 		res.send({ token: 'TOKEN' });
