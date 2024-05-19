@@ -14,8 +14,9 @@ export const getAllContacts = async (req, res) => {
 };
 
 export const getOneContact = async (req, res, next) => {
+	const { id } = req.params;
+
 	try {
-		const { id } = req.params;
 		const result = await Contact.findById(id);
 		if (!result) {
 			throw HttpError(404);
@@ -27,8 +28,9 @@ export const getOneContact = async (req, res, next) => {
 };
 
 export const createContact = async (req, res, next) => {
+	const contact = req.body;
+
 	try {
-		const contact = req.body;
 		const result = await Contact.create(contact);
 
 		res.status(201).json(result);
@@ -38,8 +40,9 @@ export const createContact = async (req, res, next) => {
 };
 
 export const updateContact = async (req, res, next) => {
+	const { id } = req.params;
+
 	try {
-		const { id } = req.params;
 		const contactUpdates = req.body;
 
 		if (Object.keys(contactUpdates).length === 0) {
@@ -61,8 +64,9 @@ export const updateContact = async (req, res, next) => {
 };
 
 export const updateFavoriteContact = async (req, res, next) => {
+	const { id } = req.params;
+
 	try {
-		const { id } = req.params;
 		const contactUpdates = req.body;
 
 		const result = await Contact.findByIdAndUpdate(id, contactUpdates, {
@@ -80,8 +84,9 @@ export const updateFavoriteContact = async (req, res, next) => {
 };
 
 export const deleteContact = async (req, res, next) => {
+	const { id } = req.params;
+
 	try {
-		const { id } = req.params;
 		const result = await Contact.findByIdAndDelete(id);
 
 		if (!result) {

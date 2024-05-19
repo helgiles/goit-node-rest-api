@@ -1,5 +1,12 @@
 import express from 'express';
 import {
+	createContactSchema,
+	updateContactSchema,
+	updateFavoriteSchema,
+} from '../schemas/contactsSchemas.js';
+import { validateBody } from '../helpers/validateBody.js';
+import { isValidId } from '../helpers/isValidId.js';
+import {
 	getAllContacts,
 	getOneContact,
 	createContact,
@@ -7,13 +14,6 @@ import {
 	updateFavoriteContact,
 	deleteContact,
 } from '../controllers/contactsControllers.js';
-import {
-	createContactSchema,
-	updateContactSchema,
-	updateFavoriteSchema,
-} from '../schemas/contactsSchemas.js';
-import { validateBody } from '../helpers/validateBody.js';
-import { isValidId } from '../helpers/isValidId.js';
 
 const jsonParser = express.json();
 
