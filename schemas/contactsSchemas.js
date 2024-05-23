@@ -1,7 +1,7 @@
 import Joi from 'joi';
 
 export const createContactSchema = Joi.object({
-	name: Joi.string().required().min(3).max(15).messages({
+	name: Joi.string().required().min(3).max(30).messages({
 		'string.base': `name must be a string`,
 		'string.min': `name must have at least {#limit} characters`,
 		'string.max': `name must have at most {#limit} characters`,
@@ -25,7 +25,7 @@ export const createContactSchema = Joi.object({
 });
 
 export const updateContactSchema = Joi.object({
-	name: Joi.string().min(3).max(15).messages({
+	name: Joi.string().min(3).max(30).messages({
 		'string.base': `name must be a string`,
 		'string.min': `name must have at least {#limit} characters`,
 		'string.max': `name must have at most {#limit} characters`,

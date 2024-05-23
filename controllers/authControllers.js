@@ -1,9 +1,11 @@
 import { User } from '../models/user.js';
 import HttpError from '../helpers/HttpError.js';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 export const registerUser = async (req, res, next) => {
 	const { email, password } = req.body;
+
 	try {
 		const user = await User.findOne({ email });
 
@@ -18,31 +20,88 @@ export const registerUser = async (req, res, next) => {
 			password: passwordHash,
 		});
 
-		res.status(201).json({ message: `Registration for ${email} successfully` });
+		res
+			.status(201)
+			.json({ message: `Registration for user with ${email} successfully` });
 	} catch (error) {
-		console.log(error);
 		next(error);
 	}
 };
 
 export const loginUser = async (req, res, next) => {
 	const { email, password } = req.body;
+	const secretKey = process.env.JWT_SECRET;
+
 	try {
 		const user = await User.findOne({ email });
 
 		if (user === null) {
-			console.log('Email');
 			throw HttpError(401, `Email or password is incorrect`);
 		}
 
 		const isMatch = await bcrypt.compare(password, user.password);
 
 		if (isMatch === false) {
-			console.log('Password');
 			throw HttpError(401, `Email or password is incorrect`);
 		}
 
-		res.send({ token: 'TOKEN' });
+		const token = jwt.sign({ id: user._id }, secretKey, {
+			expiresIn: '3h',
+		});
+
+		await User.findByIdAndUpdate(user._id, { token });
+
+		res.send({ token: token });
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const getCurrent = async (req, res) => {
+	const { email, subscription } = req.user;
+
+	res.json({
+		email,
+		subscription,
+	});
+};
+
+export const updateSubscription = async (req, res, next) => {
+	const { id } = req.params;
+	const { subscription } = req.body;
+	console.log(req.body);
+
+	try {
+		if (!subscription) {
+			throw HttpError(400, 'Subscription is required');
+		}
+
+		const result = await User.findOneAndUpdate(
+			{ _id: id },
+			{ subscription },
+			{
+				new: true,
+			}
+		);
+
+		if (!result) {
+			throw HttpError(404);
+		}
+
+		res.status(200).json(result);
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const logout = async (req, res, next) => {
+	const { _id } = req.user;
+	try {
+		await User.findByIdAndUpdate(_id, { token: null });
+
+		res.json({
+			message: `You logged out from the application`,
+		});
 	} catch (error) {
 		next(error);
 	}

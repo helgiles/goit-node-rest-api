@@ -4,7 +4,6 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import contactsRouter from './routes/contactsRouter.js';
 import authRouter from './routes/authRouter.js';
-import 'dotenv/config';
 
 const PORT = process.env.PORT || 3000;
 const dbURI = process.env.DB_URI;
