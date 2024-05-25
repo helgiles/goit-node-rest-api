@@ -12,14 +12,22 @@ export const getAllContacts = async (req, res, next) => {
 	}
 
 	try {
+		const total = await Contact.countDocuments(filter);
 		const result = await Contact.find(filter, '-createdAt -updatedAt', {
 			skip,
-			limit,
+			limit: parseInt(limit, 10),
 		}).populate('owner', '_id subscription');
+
 		if (!result) {
 			throw HttpError(404);
 		}
-		res.json(result);
+
+		res.json({
+			total,
+			page: parseInt(page, 10),
+			perPage: parseInt(limit, 10),
+			contacts: result,
+		});
 	} catch (error) {
 		next(error);
 	}

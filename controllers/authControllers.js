@@ -15,14 +15,17 @@ export const registerUser = async (req, res, next) => {
 
 		const passwordHash = await bcrypt.hash(password, 10);
 
-		await User.create({
+		const newUser = await User.create({
 			email: email,
 			password: passwordHash,
 		});
 
-		res
-			.status(201)
-			.json({ message: `Registration for user with ${email} successfully` });
+		res.status(201).json({
+			user: {
+				email: newUser.email,
+				subscription: newUser.subscription,
+			},
+		});
 	} catch (error) {
 		next(error);
 	}
@@ -51,7 +54,13 @@ export const loginUser = async (req, res, next) => {
 
 		await User.findByIdAndUpdate(user._id, { token });
 
-		res.send({ token: token });
+		res.send({
+			token: token,
+			user: {
+				email: user.email,
+				subscription: user.subscription,
+			},
+		});
 	} catch (error) {
 		next(error);
 	}
@@ -99,9 +108,7 @@ export const logout = async (req, res, next) => {
 	try {
 		await User.findByIdAndUpdate(_id, { token: null });
 
-		res.json({
-			message: `You logged out from the application`,
-		});
+		res.status(204).end();
 	} catch (error) {
 		next(error);
 	}
