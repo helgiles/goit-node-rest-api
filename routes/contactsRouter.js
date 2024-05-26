@@ -1,5 +1,14 @@
 import express from 'express';
 import {
+	createContactSchema,
+	updateContactSchema,
+	updateFavoriteSchema,
+} from '../schemas/contactsSchemas.js';
+import { jsonParser } from '../middlewares/jsonParser.js';
+import { authenticate } from '../middlewares/authenticate.js';
+import { validateBody } from '../middlewares/validateBody.js';
+import { isValidId } from '../middlewares/isValidId.js';
+import {
 	getAllContacts,
 	getOneContact,
 	createContact,
@@ -7,25 +16,17 @@ import {
 	updateFavoriteContact,
 	deleteContact,
 } from '../controllers/contactsControllers.js';
-import {
-	createContactSchema,
-	updateContactSchema,
-	updateFavoriteSchema,
-} from '../schemas/contactsSchemas.js';
-import { validateBody } from '../helpers/validateBody.js';
-import { isValidId } from '../helpers/isValidId.js';
-
-const jsonParser = express.json();
 
 const contactsRouter = express.Router();
 
-contactsRouter.get('/', getAllContacts);
+contactsRouter.get('/', authenticate, getAllContacts);
 
-contactsRouter.get('/:id', isValidId, getOneContact);
+contactsRouter.get('/:id', authenticate, isValidId, getOneContact);
 
 contactsRouter.post(
 	'/',
 	jsonParser,
+	authenticate,
 	validateBody(createContactSchema),
 	createContact
 );
@@ -34,6 +35,7 @@ contactsRouter.put(
 	'/:id',
 	isValidId,
 	jsonParser,
+	authenticate,
 	validateBody(updateContactSchema),
 	updateContact
 );
@@ -42,10 +44,11 @@ contactsRouter.patch(
 	'/:id/favorite',
 	isValidId,
 	jsonParser,
+	authenticate,
 	validateBody(updateFavoriteSchema),
 	updateFavoriteContact
 );
 
-contactsRouter.delete('/:id', isValidId, deleteContact);
+contactsRouter.delete('/:id', isValidId, authenticate, deleteContact);
 
 export default contactsRouter;

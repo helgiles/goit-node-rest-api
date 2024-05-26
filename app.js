@@ -3,7 +3,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import contactsRouter from './routes/contactsRouter.js';
-import 'dotenv/config';
+import authRouter from './routes/authRouter.js';
 
 const PORT = process.env.PORT || 3000;
 const dbURI = process.env.DB_URI;
@@ -14,6 +14,7 @@ app.use(morgan('tiny'));
 app.use(cors());
 
 app.use('/api/contacts', contactsRouter);
+app.use('/api/users', authRouter);
 
 app.use((_, res) => {
 	res.status(404).json({ message: 'Route not found' });
