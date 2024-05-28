@@ -39,7 +39,7 @@ authRouter.patch(
 );
 
 authRouter.patch(
-	'/avatars',
+	'/:id/avatars',
 	authenticate,
 	upload.single('avatar'),
 	updateAvatar
