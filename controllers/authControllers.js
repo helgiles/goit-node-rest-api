@@ -122,7 +122,7 @@ export const updateAvatar = async (req, res, next) => {
 			{ new: true }
 		);
 
-		res.send(user);
+		res.send({ avatarURL: user.avatarURL });
 	} catch (error) {
 		next(error);
 	}
