@@ -120,13 +120,11 @@ export const updateAvatar = async (req, res, next) => {
 		await image.writeAsync(newPath);
 		await fs.unlink(tmpPath);
 
-		const user = await User.findByIdAndUpdate(
-			id,
-			{ avatarURL: file },
-			{ new: true }
-		);
+		const avatarURL = path.join('avatars', file);
 
-		res.send({ avatarURL: user.avatarURL });
+		await User.findByIdAndUpdate(id, { avatarURL }, { new: true });
+
+		res.send({ avatarURL });
 	} catch (error) {
 		next(error);
 	}
