@@ -2,6 +2,9 @@ import { User } from '../models/user.js';
 import HttpError from '../helpers/HttpError.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import gravatar from 'gravatar';
+import path from 'node:path';
+import * as fs from 'node:fs/promises';
 
 export const registerUser = async (req, res, next) => {
 	const { email, password } = req.body;
@@ -14,10 +17,13 @@ export const registerUser = async (req, res, next) => {
 		}
 
 		const passwordHash = await bcrypt.hash(password, 10);
+		const avatarUrl = gravatar.url(email);
+		console.log(avatarUrl);
 
 		const newUser = await User.create({
 			email: email,
 			password: passwordHash,
+			avatarURL: avatarUrl,
 		});
 
 		res.status(201).json({
@@ -78,7 +84,6 @@ export const getCurrent = async (req, res) => {
 export const updateSubscription = async (req, res, next) => {
 	const { id } = req.params;
 	const { subscription } = req.body;
-	console.log(req.body);
 
 	try {
 		if (!subscription) {
@@ -88,9 +93,7 @@ export const updateSubscription = async (req, res, next) => {
 		const result = await User.findOneAndUpdate(
 			{ _id: id },
 			{ subscription },
-			{
-				new: true,
-			}
+			{ new: true }
 		);
 
 		if (!result) {
@@ -103,10 +106,32 @@ export const updateSubscription = async (req, res, next) => {
 	}
 };
 
-export const logout = async (req, res, next) => {
-	const { _id } = req.user;
+export const updateAvatar = async (req, res, next) => {
+	const id = req.user.id;
+	const file = req.file.filename;
+	const tmpPath = req.file.path;
+
 	try {
-		await User.findByIdAndUpdate(_id, { token: null });
+		const newPath = path.resolve('public', 'avatars', file);
+
+		await fs.rename(tmpPath, newPath);
+
+		const user = await User.findByIdAndUpdate(
+			id,
+			{ avatarURL: file },
+			{ new: true }
+		);
+
+		res.send(user);
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const logout = async (req, res, next) => {
+	const id = req.user.id;
+	try {
+		await User.findByIdAndUpdate(id, { token: null });
 
 		res.status(204).end();
 	} catch (error) {
