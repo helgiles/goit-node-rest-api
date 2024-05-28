@@ -1,5 +1,6 @@
 import { User } from '../models/user.js';
 import HttpError from '../helpers/HttpError.js';
+import Jimp from 'jimp';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import gravatar from 'gravatar';
@@ -114,7 +115,10 @@ export const updateAvatar = async (req, res, next) => {
 	try {
 		const newPath = path.resolve('public', 'avatars', file);
 
-		await fs.rename(tmpPath, newPath);
+		const image = await Jimp.read(tmpPath);
+		await image.resize(250, 250);
+		await image.writeAsync(newPath);
+		await fs.unlink(tmpPath);
 
 		const user = await User.findByIdAndUpdate(
 			id,
