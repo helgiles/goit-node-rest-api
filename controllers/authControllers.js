@@ -109,6 +109,11 @@ export const updateSubscription = async (req, res, next) => {
 
 export const updateAvatar = async (req, res, next) => {
 	const id = req.user.id;
+
+	if (!req.file || !req.file.filename) {
+		next(HttpError(400, 'Avatar file must be added'));
+	}
+
 	const file = req.file.filename;
 	const tmpPath = req.file.path;
 
