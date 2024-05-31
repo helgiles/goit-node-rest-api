@@ -50,7 +50,6 @@ describe('login', () => {
 			password: 'wrongPassword',
 		});
 
-		console.log(response.body);
 		expect(response.statusCode).toBe(401);
 		expect(response.body).toHaveProperty(
 			'message',
