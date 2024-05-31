@@ -83,7 +83,7 @@ export const getCurrent = async (req, res) => {
 };
 
 export const updateSubscription = async (req, res, next) => {
-	const { id } = req.params;
+	const { _id: id } = req.user;
 	const { subscription } = req.body;
 
 	try {

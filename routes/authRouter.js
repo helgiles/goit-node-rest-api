@@ -31,18 +31,18 @@ authRouter.post('/login', jsonParser, validateBody(loginSchema), loginUser);
 authRouter.get('/current', authenticate, getCurrent);
 
 authRouter.patch(
-	'/avatars',
-	authenticate,
-	upload.single('avatar'),
-	updateAvatar
-);
-
-authRouter.patch(
-	'/:id',
+	'/',
 	jsonParser,
 	authenticate,
 	validateBody(subscriptionSchema),
 	updateSubscription
+);
+
+authRouter.patch(
+	'/avatars',
+	authenticate,
+	upload.single('avatar'),
+	updateAvatar
 );
 
 authRouter.post('/logout', authenticate, logout);
