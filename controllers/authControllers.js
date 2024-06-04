@@ -1,6 +1,8 @@
 import { User } from '../models/user.js';
 import HttpError from '../helpers/HttpError.js';
+import { sendMail } from '../helpers/sendMail.js';
 import Jimp from 'jimp';
+import crypto from 'node:crypto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import gravatar from 'gravatar';
@@ -9,6 +11,7 @@ import * as fs from 'node:fs/promises';
 
 export const registerUser = async (req, res, next) => {
 	const { email, password } = req.body;
+	const BASE_URL = process.env.BASE_URL;
 
 	try {
 		const user = await User.findOne({ email });
@@ -18,12 +21,21 @@ export const registerUser = async (req, res, next) => {
 		}
 
 		const passwordHash = await bcrypt.hash(password, 10);
+		const verificationToken = crypto.randomUUID();
 		const avatarUrl = gravatar.url(email);
-		console.log(avatarUrl);
+
+		sendMail({
+			to: email,
+			from: 'eternityonly1@gmail.com',
+			subject: 'Welcome to Contactbook',
+			html: `To confirm you email please click on <a href="${BASE_URL}/api/users/verify/${verificationToken}">link</a>`,
+			text: `To confirm you email please open the link ${BASE_URL}/api/users/verify/${verificationToken}`,
+		});
 
 		const newUser = await User.create({
 			email: email,
 			password: passwordHash,
+			verificationToken: verificationToken,
 			avatarURL: avatarUrl,
 		});
 
@@ -33,6 +45,56 @@ export const registerUser = async (req, res, next) => {
 				subscription: newUser.subscription,
 			},
 		});
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const verifyEmail = async (req, res, next) => {
+	const { token } = req.params;
+
+	try {
+		const user = await User.findOne({ verificationToken: token });
+
+		if (user === null) {
+			throw HttpError(404, `User not found`);
+		}
+
+		await User.findByIdAndUpdate(user._id, {
+			verify: true,
+			verificationToken: null,
+		});
+
+		res.send({ message: 'Verification successful' });
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const resendingVerifyEmail = async (req, res, next) => {
+	const { email } = req.body;
+	const BASE_URL = process.env.BASE_URL;
+
+	try {
+		const user = await User.findOne({ email });
+
+		if (!user) {
+			throw HttpError(400, `Missing required field email`);
+		}
+
+		if (user.verify) {
+			throw HttpError(400, `Verification has already been passed`);
+		}
+
+		sendMail({
+			to: email,
+			from: 'eternityonly1@gmail.com',
+			subject: 'Welcome to Contactbook',
+			html: `To confirm you email please click on <a href="${BASE_URL}/api/users/verify/${user.verificationToken}">link</a>`,
+			text: `To confirm you email please open the link  ${BASE_URL}/api/users/verify/${user.verificationToken}`,
+		});
+
+		res.status(200).send({ message: 'Verification email sent' });
 	} catch (error) {
 		next(error);
 	}
@@ -53,6 +115,10 @@ export const loginUser = async (req, res, next) => {
 
 		if (isMatch === false) {
 			throw HttpError(401, `Email or password is incorrect`);
+		}
+
+		if (user.verify === false) {
+			throw HttpError(401, `Please verify your email`);
 		}
 
 		const token = jwt.sign({ id: user._id }, secretKey, {

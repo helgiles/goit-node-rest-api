@@ -3,6 +3,7 @@ import {
 	registerSchema,
 	loginSchema,
 	subscriptionSchema,
+	verifyEmailSchema,
 } from '../schemas/authSchemas.js';
 import { jsonParser } from '../middlewares/jsonParser.js';
 import { validateBody } from '../middlewares/validateBody.js';
@@ -10,6 +11,8 @@ import { authenticate } from '../middlewares/authenticate.js';
 import { upload } from '../middlewares/upload.js';
 import {
 	registerUser,
+	verifyEmail,
+	resendingVerifyEmail,
 	loginUser,
 	getCurrent,
 	logout,
@@ -24,6 +27,15 @@ authRouter.post(
 	jsonParser,
 	validateBody(registerSchema),
 	registerUser
+);
+
+authRouter.get('/verify/:token', verifyEmail);
+
+authRouter.post(
+	'/verify',
+	jsonParser,
+	validateBody(verifyEmailSchema),
+	resendingVerifyEmail
 );
 
 authRouter.post('/login', jsonParser, validateBody(loginSchema), loginUser);
