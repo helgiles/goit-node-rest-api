@@ -13,6 +13,14 @@ export const registerSchema = Joi.object({
 	}),
 });
 
+export const verifyEmailSchema = Joi.object({
+	email: Joi.string().required().email({ minDomainSegments: 2 }).messages({
+		'string.email': `email must be a valid email address with "@" symbol`,
+		'any.required': `email is required`,
+		'string.empty': `email cannot be an empty field`,
+	}),
+});
+
 export const loginSchema = Joi.object({
 	email: Joi.string().required().email({ minDomainSegments: 2 }).messages({
 		'string.email': `email must be a valid email address with "@" symbol`,

@@ -1,5 +1,4 @@
-import dotenv from 'dotenv';
-dotenv.config();
+import 'dotenv/config';
 
 import supertest from 'supertest';
 import mongoose from 'mongoose';
@@ -23,6 +22,8 @@ describe('login', () => {
 			email: 'testUser@mail.com',
 			password: hashedPassword,
 			subscription: 'starter',
+			verify: true,
+			verificationToken: 'testToken',
 		});
 
 		await testUser.save();
